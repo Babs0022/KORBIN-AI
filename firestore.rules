@@ -2,48 +2,44 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper function
+    // Helper functions
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    function isWorkspaceMember(workspaceId) {
+      return request.auth.uid in get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.members ||
+             get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerId == request.auth.uid;
+    }
+
     // User documents - users can only access their own
     match /users/{userId} {
-      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      allow read, create: if isAuthenticated() && request.auth.uid == userId;
     }
 
     // Workspace documents
     match /workspaces/{workspaceId} {
       // Read: owner or members can read
-      allow read: if isAuthenticated() && 
-        (resource.data.ownerId == request.auth.uid || 
-         request.auth.uid in resource.data.members);
+      allow read: if isAuthenticated() &&
+        (resource.data.ownerId == request.auth.uid || request.auth.uid in resource.data.members);
       
-      // Create: authenticated users can create
-      allow create: if isAuthenticated() && 
+      // Create: authenticated users can create and ownerId must be the same as the user's uid
+      allow create: if isAuthenticated() &&
         request.resource.data.ownerId == request.auth.uid;
       
-      // Update: only owner can update
-      allow update: if isAuthenticated() && 
-        resource.data.ownerId == request.auth.uid;
-      
-      // Delete: only owner can delete
-      allow delete: if isAuthenticated() && 
+      // Update, Delete: only owner can update or delete
+      allow update, delete: if isAuthenticated() &&
         resource.data.ownerId == request.auth.uid;
 
       // Chat subcollections within workspaces
       match /chats/{chatId} {
         // Read/Write: workspace members can access chats
-        allow read, write: if isAuthenticated() && 
-          (get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerId == request.auth.uid ||
-           request.auth.uid in get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.members);
+        allow read, write: if isAuthenticated() && isWorkspaceMember(workspaceId);
 
         // Message subcollections within chats
         match /messages/{messageId} {
-          // Read/Write: workspace members can access messages
-          allow read, write: if isAuthenticated() && 
-            (get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerId == request.auth.uid ||
-             request.auth.uid in get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.members);
+          // Read, Create: workspace members can access messages
+          allow read, create: if isAuthenticated() && isWorkspaceMember(workspaceId);
         }
       }
     }
