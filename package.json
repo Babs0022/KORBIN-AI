@@ -13,6 +13,7 @@
     "@google/generative-ai": "^0.24.1",
     "firebase": "^12.2.1",
     "firebase-admin": "^13.5.0",
+    "framer-motion": "^12.23.12",
     "googleapis": "^159.0.0",
     "iron-session": "^8.0.4",
     "next": "15.5.2",

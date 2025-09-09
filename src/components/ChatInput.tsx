@@ -21,17 +21,21 @@ export default function ChatInput({ workspaceId, chatId, defaultModel }: { works
   }
 
   return (
-    <div className="border-t p-3 flex gap-2 items-center">
-      <ModelSelector value={model} onChange={setModel} />
-      <input
-        className="flex-1 border rounded px-3 py-2"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        placeholder="Type your message..."
-      />
-      <button className="bg-black text-white px-4 py-2 rounded disabled:opacity-50" onClick={send} disabled={loading}>
-        Send
-      </button>
+    <div className="p-4">
+      <div className="glass-card rounded-3xl p-3 border border-white/15 flex items-center gap-3">
+        <div className="shrink-0">
+          <ModelSelector value={model} onChange={setModel} />
+        </div>
+        <input
+          className="flex-1 bg-transparent text-white placeholder-white/50 border-none outline-none px-2 py-3"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask anything about your workspace..."
+        />
+        <button className="btn-gradient rounded-2xl px-5 py-2.5 disabled:opacity-50" onClick={send} disabled={loading}>
+          Send
+        </button>
+      </div>
     </div>
   );
 }

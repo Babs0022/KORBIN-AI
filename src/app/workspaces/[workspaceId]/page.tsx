@@ -7,6 +7,7 @@ import MessageList from "@/components/MessageList";
 import ChatInput from "@/components/ChatInput";
 import { db } from "@/lib/firebase/client";
 import { addDoc, collection, doc, getDoc } from "firebase/firestore";
+import { motion } from "framer-motion";
 
 export default function WorkspacePage() {
   const params = useParams();
@@ -41,14 +42,16 @@ export default function WorkspacePage() {
     <div className="min-h-screen flex">
       <Sidebar userId={user.uid} />
       <div className="flex-1 flex flex-col">
-        <div className="border-b p-3 flex items-center justify-between">
+        <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="glass border-b border-white/10 p-4 flex items-center justify-between">
           <div className="font-semibold">Workspace: {workspaceId}</div>
-          <a href={`/workspaces/${workspaceId}/settings`} className="text-sm underline">Settings</a>
-        </div>
+          <a href={`/workspaces/${workspaceId}/settings`} className="text-sm glass-chip px-3 py-1.5 rounded-xl">Settings</a>
+        </motion.div>
         {chatId ? (
           <>
             <MessageList workspaceId={workspaceId} chatId={chatId} />
-            <ChatInput workspaceId={workspaceId} chatId={chatId} defaultModel={defaultModel} />
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+              <ChatInput workspaceId={workspaceId} chatId={chatId} defaultModel={defaultModel} />
+            </motion.div>
           </>
         ) : (
           <div className="p-6">Loading chat...</div>
